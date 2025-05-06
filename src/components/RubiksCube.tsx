@@ -292,6 +292,7 @@ const RubiksCube = forwardRef<any, {}>((props, ref) => {
     // Find the first Group object which should be our main cube
     let group: THREE.Group | null = null;
     state.scene.traverse((object: THREE.Object3D) => {
+      // Fix the comparison - use instanceof instead of direct type comparison
       if (!group && object instanceof THREE.Group && object !== state.scene) {
         group = object as THREE.Group;
       }
