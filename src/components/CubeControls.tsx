@@ -43,6 +43,8 @@ const MoveButton = ({
 };
 
 const CubeControls: React.FC<CubeControlsProps> = ({ onMoveClick, isAnimating }) => {
+  console.log('Animation status:', isAnimating);
+  
   return (
     <div className="w-full max-w-4xl mx-auto p-4 bg-gray-100 bg-opacity-90 backdrop-blur-sm rounded-lg shadow-md">
       <h2 className="text-xl font-bold mb-4 text-center text-gray-800">Cube Controls</h2>

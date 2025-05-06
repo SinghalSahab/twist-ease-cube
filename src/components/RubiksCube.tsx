@@ -1,6 +1,6 @@
 
 import React, { useRef, useState, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { Canvas, useFrame, useThree, RootState } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -172,7 +172,7 @@ class CubeAnimation {
     
     // Find all cubies that belong to the layer we want to rotate
     this.group.children.forEach((child) => {
-      if (child.type === 'Mesh' || child.type === 'mesh') {
+      if (child instanceof THREE.Mesh) {
         // Check if the cubie is on the specific layer
         if (Math.round(child.position[this.axis]) === this.index) {
           // Clone position to avoid reference issues
@@ -260,7 +260,7 @@ const RubiksCube = forwardRef<any, {}>((props, ref) => {
   // Expose methods to parent
   useImperativeHandle(ref, () => ({
     performMove: (move: string) => {
-      if (sceneRef.current && !isAnimating) {
+      if (sceneRef.current) {
         sceneRef.current.performMove(move);
       }
     },
@@ -295,18 +295,14 @@ const RubiksCube = forwardRef<any, {}>((props, ref) => {
   }, [moveQueue, cubeGroup, currentAnimation]);
 
   // Set up Three.js scene when the first layer is found
-  const handleSceneMount = (state: RootState) => {
-    // Find the first Group object which should be our main cube
-    let group: THREE.Group | null = null;
-    state.scene.traverse((object: THREE.Object3D) => {
-      if (!group && object instanceof THREE.Group && !(object instanceof THREE.Scene)) {
-        group = object as THREE.Group;
+  const handleSceneMount = (state: any) => {
+    const scene = state.scene;
+    // Find the Group object by traversing the scene
+    scene.traverse((object: THREE.Object3D) => {
+      if (object instanceof THREE.Group && !(object instanceof THREE.Scene)) {
+        setCubeGroup(object);
       }
     });
-
-    if (group) {
-      setCubeGroup(group);
-    }
   };
 
   return (

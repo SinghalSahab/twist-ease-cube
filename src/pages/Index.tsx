@@ -2,6 +2,7 @@
 import React, { useRef, useState } from 'react';
 import RubiksCube from '@/components/RubiksCube';
 import CubeControls from '@/components/CubeControls';
+import { toast } from '@/components/ui/use-toast';
 
 const Index = () => {
   const cubeRef = useRef<any>(null);
@@ -9,13 +10,23 @@ const Index = () => {
 
   const handleMoveClick = (move: string) => {
     if (cubeRef.current && !isAnimating) {
-      setIsAnimating(true);
-      cubeRef.current.performMove(move);
-      
-      // Reset animation state after a delay to cover the animation duration
-      setTimeout(() => {
+      try {
+        setIsAnimating(true);
+        cubeRef.current.performMove(move);
+        
+        // Reset animation state after a delay to cover the animation duration
+        setTimeout(() => {
+          setIsAnimating(false);
+        }, 600); // Slightly longer than the animation duration (500ms)
+      } catch (error) {
+        console.error('Error performing move:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to perform the move. Please try again.',
+          variant: 'destructive',
+        });
         setIsAnimating(false);
-      }, 600); // Slightly longer than the animation duration (500ms)
+      }
     }
   };
 
