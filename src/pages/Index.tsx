@@ -1,14 +1,21 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import RubiksCube from '@/components/RubiksCube';
 import CubeControls from '@/components/CubeControls';
 
 const Index = () => {
   const cubeRef = useRef<any>(null);
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
 
   const handleMoveClick = (move: string) => {
-    if (cubeRef.current) {
+    if (cubeRef.current && !isAnimating) {
+      setIsAnimating(true);
       cubeRef.current.performMove(move);
+      
+      // Reset animation state after a delay to cover the animation duration
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 600); // Slightly longer than the animation duration (500ms)
     }
   };
 
@@ -26,7 +33,7 @@ const Index = () => {
           <RubiksCube ref={cubeRef} />
         </div>
         
-        <CubeControls onMoveClick={handleMoveClick} />
+        <CubeControls onMoveClick={handleMoveClick} isAnimating={isAnimating} />
       </main>
       
       <footer className="w-full py-4 text-center text-gray-400 text-sm">

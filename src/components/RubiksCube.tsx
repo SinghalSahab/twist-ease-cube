@@ -250,6 +250,7 @@ const RubiksCube = forwardRef<any, {}>((props, ref) => {
   const [cubeGroup, setCubeGroup] = useState<THREE.Group | null>(null);
   const [currentAnimation, setCurrentAnimation] = useState<CubeAnimation | null>(null);
   const [moveQueue, setMoveQueue] = useState<Array<MoveData>>([]);
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
 
   // Handle cube initialization
   const handleCubeInitialized = (moveData: MoveData) => {
@@ -259,15 +260,18 @@ const RubiksCube = forwardRef<any, {}>((props, ref) => {
   // Expose methods to parent
   useImperativeHandle(ref, () => ({
     performMove: (move: string) => {
-      if (sceneRef.current) {
+      if (sceneRef.current && !isAnimating) {
         sceneRef.current.performMove(move);
       }
-    }
+    },
+    isAnimating: () => isAnimating
   }));
 
   // Process the move queue
   useEffect(() => {
     if (moveQueue.length > 0 && cubeGroup && !currentAnimation) {
+      setIsAnimating(true);
+      
       const nextMove = moveQueue[0];
       const newMoveQueue = [...moveQueue];
       newMoveQueue.shift();
@@ -280,6 +284,9 @@ const RubiksCube = forwardRef<any, {}>((props, ref) => {
         () => {
           setCurrentAnimation(null);
           setMoveQueue(newMoveQueue);
+          if (newMoveQueue.length === 0) {
+            setIsAnimating(false);
+          }
         }
       );
       
