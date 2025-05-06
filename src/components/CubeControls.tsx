@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, RotateIcon } from 'lucide-react';
+import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Rotate3D } from 'lucide-react';
 
 interface CubeControlsProps {
   onMoveClick: (move: string) => void;
@@ -69,16 +69,16 @@ const CubeControls: React.FC<CubeControlsProps> = ({ onMoveClick }) => {
         <div className="flex flex-col gap-2">
           <h3 className="text-center font-semibold mb-1">Front Face</h3>
           <div className="flex justify-center gap-2">
-            <MoveButton move="F" onClick={onMoveClick} icon={<RotateIcon size={16} />} />
-            <MoveButton move="F'" onClick={onMoveClick} icon={<RotateIcon size={16} />} />
+            <MoveButton move="F" onClick={onMoveClick} icon={<Rotate3D size={16} />} />
+            <MoveButton move="F'" onClick={onMoveClick} icon={<Rotate3D size={16} />} />
           </div>
         </div>
         
         <div className="flex flex-col gap-2">
           <h3 className="text-center font-semibold mb-1">Back Face</h3>
           <div className="flex justify-center gap-2">
-            <MoveButton move="B" onClick={onMoveClick} icon={<RotateIcon size={16} />} />
-            <MoveButton move="B'" onClick={onMoveClick} icon={<RotateIcon size={16} />} />
+            <MoveButton move="B" onClick={onMoveClick} icon={<Rotate3D size={16} />} />
+            <MoveButton move="B'" onClick={onMoveClick} icon={<Rotate3D size={16} />} />
           </div>
         </div>
       </div>

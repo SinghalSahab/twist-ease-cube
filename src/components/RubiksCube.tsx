@@ -1,6 +1,6 @@
 
 import React, { useRef, useState, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame, useThree, RootState } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -14,8 +14,13 @@ const FACE_COLORS = {
   left: '#00FF00'    // Green
 };
 
+interface CubieProps {
+  position: [number, number, number];
+  colors?: (string | null)[];
+}
+
 // A small cubie that makes up the Rubik's Cube
-const Cubie = ({ position, colors = [] }) => {
+const Cubie: React.FC<CubieProps> = ({ position, colors = [] }) => {
   const size = 0.95; // Slightly smaller than 1 to create gaps between cubies
   const geometry = new THREE.BoxGeometry(size, size, size);
   
@@ -36,8 +41,14 @@ const Cubie = ({ position, colors = [] }) => {
   );
 };
 
+interface RubiksCubeSceneProps {
+  onCubeInitialized?: (moveData: any) => void;
+  currentAnimation?: CubeAnimation | null;
+}
+
 // Create a 3x3x3 Rubik's Cube
-const RubiksCubeScene = forwardRef(({ onCubeInitialized, currentAnimation }, ref) => {
+const RubiksCubeScene = forwardRef<any, RubiksCubeSceneProps>((props, ref) => {
+  const { onCubeInitialized, currentAnimation } = props;
   const cubeGroup = useRef<THREE.Group>(null);
   const controlsRef = useRef<any>(null);
   const { camera } = useThree();
@@ -95,7 +106,7 @@ const RubiksCubeScene = forwardRef(({ onCubeInitialized, currentAnimation }, ref
   for (let x = 0; x < 3; x++) {
     for (let y = 0; y < 3; y++) {
       for (let z = 0; z < 3; z++) {
-        const position = [positions[x], positions[y], positions[z]];
+        const position = [positions[x], positions[y], positions[z]] as [number, number, number];
         const colors = [
           x === 2 ? FACE_COLORS.right : null,  // Right face (x = 1)
           x === 0 ? FACE_COLORS.left : null,   // Left face (x = -1)
@@ -128,6 +139,12 @@ const RubiksCubeScene = forwardRef(({ onCubeInitialized, currentAnimation }, ref
   );
 });
 
+interface MoveData {
+  axis: number;
+  index: number;
+  direction: number;
+}
+
 // Animation class to handle cube rotations
 class CubeAnimation {
   group: THREE.Group;
@@ -139,7 +156,7 @@ class CubeAnimation {
   duration: number;
   rotationGroup: THREE.Group;
 
-  constructor(group, axis, index, direction, onComplete) {
+  constructor(group: THREE.Group, axis: number, index: number, direction: number, onComplete: () => void) {
     this.group = group;
     this.axis = axis;
     this.index = index;
@@ -173,7 +190,7 @@ class CubeAnimation {
     return rotationGroup;
   }
 
-  update(delta) {
+  update(delta: number) {
     this.progress += delta / this.duration;
 
     if (this.progress >= 1) {
@@ -198,7 +215,7 @@ class CubeAnimation {
     return false;
   }
 
-  easeInOutCubic(x) {
+  easeInOutCubic(x: number) {
     return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
   }
 
@@ -228,14 +245,14 @@ class CubeAnimation {
 }
 
 // Main component that wraps everything
-const RubiksCube = forwardRef((props, ref) => {
-  const sceneRef = useRef();
+const RubiksCube = forwardRef<any, {}>((props, ref) => {
+  const sceneRef = useRef<any>(null);
   const [cubeGroup, setCubeGroup] = useState<THREE.Group | null>(null);
   const [currentAnimation, setCurrentAnimation] = useState<CubeAnimation | null>(null);
-  const [moveQueue, setMoveQueue] = useState<Array<{ axis: number, index: number, direction: number }>>([]);
+  const [moveQueue, setMoveQueue] = useState<Array<MoveData>>([]);
 
   // Handle cube initialization
-  const handleCubeInitialized = (moveData) => {
+  const handleCubeInitialized = (moveData: MoveData) => {
     setMoveQueue((queue) => [...queue, moveData]);
   };
 
@@ -271,11 +288,11 @@ const RubiksCube = forwardRef((props, ref) => {
   }, [moveQueue, cubeGroup, currentAnimation]);
 
   // Set up Three.js scene when the first layer is found
-  const handleSceneMount = (state: THREE.Group) => {
+  const handleSceneMount = (state: any) => {
     // Find the first Group object which should be our main cube
     let group = null;
-    state.traverse((object) => {
-      if (!group && object.type === 'Group' && object !== state) {
+    state.scene.traverse((object: any) => {
+      if (!group && object.type === 'Group' && object !== state.scene) {
         group = object;
       }
     });
