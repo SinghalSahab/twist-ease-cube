@@ -49,7 +49,7 @@ interface RubiksCubeSceneProps {
 // Create a 3x3x3 Rubik's Cube
 const RubiksCubeScene = forwardRef<any, RubiksCubeSceneProps>((props, ref) => {
   const { onCubeInitialized, currentAnimation } = props;
-  const cubeGroup = useRef<THREE.Group>(null);
+  const cubeGroup = useRef<THREE.Group>(new THREE.Group());
   const controlsRef = useRef<any>(null);
   const { camera } = useThree();
   
@@ -253,7 +253,7 @@ const RubiksCube = forwardRef<any, {}>((props, ref) => {
 
   // Handle cube initialization
   const handleCubeInitialized = (moveData: MoveData) => {
-    setMoveQueue((queue) => [...queue, moveData]);
+    setMoveQueue(prevQueue => [...prevQueue, moveData]);
   };
 
   // Expose methods to parent
@@ -288,12 +288,12 @@ const RubiksCube = forwardRef<any, {}>((props, ref) => {
   }, [moveQueue, cubeGroup, currentAnimation]);
 
   // Set up Three.js scene when the first layer is found
-  const handleSceneMount = (state: any) => {
+  const handleSceneMount = (state: RootState) => {
     // Find the first Group object which should be our main cube
-    let group = null;
-    state.scene.traverse((object: any) => {
-      if (!group && object.type === 'Group' && object !== state.scene) {
-        group = object;
+    let group: THREE.Group | null = null;
+    state.scene.traverse((object: THREE.Object3D) => {
+      if (!group && object instanceof THREE.Group && object !== state.scene) {
+        group = object as THREE.Group;
       }
     });
 
