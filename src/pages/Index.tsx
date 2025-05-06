@@ -12,6 +12,9 @@ const Index = () => {
     if (cubeRef.current && !isAnimating) {
       try {
         setIsAnimating(true);
+        console.log('Cube reference:', cubeRef.current);
+        console.log('Animation status:', isAnimating);
+        console.log(`Performing move: ${move}`);
         cubeRef.current.performMove(move);
         
         // Reset animation state after a delay to cover the animation duration
